@@ -1,0 +1,62 @@
+{
+  "data": {
+    "id": 463421,
+    "intAccount": 161017595,
+    "clientRole": "basic",
+    "effectiveClientRole": "basic",
+    "contractType": "CORPORATE",
+    "username": "DGTraderIE",
+    "displayName": "Stichting DeGiro",
+    "email": "testing@degiro.nl",
+    "firstContact": {
+      "firstName": "Melvin Sebastiaan",
+      "lastName": "Huisman",
+      "displayName": "Melvin Sebastiaan Huisman",
+      "nationality": "NL",
+      "gender": "MALE",
+      "dateOfBirth": "1976-08-03",
+      "placeOfBirth": "Leeuwarden",
+      "countryOfBirth": "NL"
+    },
+    "secondContact": {
+      "firstName": "Henricus Johannes Joseph Maria",
+      "lastName": "Schoofs",
+      "displayName": "Henricus Johannes Joseph Maria Schoofs",
+      "nationality": "NL",
+      "gender": "MALE",
+      "dateOfBirth": "1943-03-17",
+      "placeOfBirth": "Veldhoven",
+      "countryOfBirth": "NL"
+    },
+    "address": {
+      "streetAddress": "Amstelplein",
+      "streetAddressNumber": "1",
+      "streetAddressExt": ".",
+      "zip": "1096HA",
+      "city": "Amsterdam",
+      "country": "NL"
+    },
+    "phoneNumber": "31205353493",
+    "cellphoneNumber": "+31205353493",
+    "locale": "en_IE",
+    "language": "en",
+    "culture": "IE",
+    "company": {
+      "name": "Stichting DeGiro",
+      "registrationNumber": "34342820"
+    },
+    "bankAccount": {
+      "bankAccountId": 469450,
+      "bic": "ABNANL2AXXX",
+      "iban": "NL14ABNA0411232584",
+      "status": "VERIFIED"
+    },
+    "memberCode": "A0A425F1",
+    "isWithdrawalAvailable": true,
+    "isAllocationAvailable": false,
+    "isIskClient": false,
+    "isCollectivePortfolio": false,
+    "isAmClientActive": false,
+    "canUpgrade": true
+  }
+}
