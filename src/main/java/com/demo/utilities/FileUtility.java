@@ -9,16 +9,21 @@ import org.json.simple.parser.ParseException;
 
 import java.io.*;
 import java.lang.reflect.Method;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import static com.demo.properties.FilePaths.report_json_folder;
 
 
 public class FileUtility {
 
-    public static final JsonParser parser     = new JsonParser();
     public static final JSONParser jsonParser = new JSONParser();
     public static final Gson gson = new Gson();
     public static final MediaType MediaTypeJSON = MediaType.parse("application/json; charset=utf-8");
@@ -27,10 +32,13 @@ public class FileUtility {
 
 
     public static String getDate() {
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH-mm");
         LocalDate localDate = LocalDate.now();
-        date = dateTimeFormatter.format(localDate);
-        return date;
+        LocalTime localTime = LocalTime.now();
+        String date = dateFormatter.format(localDate);
+        String time = timeFormatter.format(localTime);
+        return date + "_" + time;
     }
 
 
@@ -46,38 +54,11 @@ public class FileUtility {
     }
 
 
-    public static String readJsonResponseFile(String fileName) {
-        try {
-            Gson gson = new GsonBuilder().setLenient().setPrettyPrinting().create();
-            JsonObject object = parser.parse(new FileReader(report_json_folder + fileName)).getAsJsonObject();
-            String formattedJson = gson.toJson(object);
-            return formattedJson;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-
-    public static String getFormattedJson(String responseBody) {
-        try {
-            Gson gson = new GsonBuilder().setLenient().setPrettyPrinting().create();
-            JsonObject jsonObject    = parser.parse(responseBody).getAsJsonObject();
-            String formattedJson = gson.toJson(jsonObject);
-            return formattedJson;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-
     public static File createLogFile(String fileName, String responseBody) {
         try {
             File file = new File(report_json_folder + fileName);
             FileWriter fileWriter = new FileWriter(file);
-            fileWriter.write(getFormattedJson(responseBody));
+            fileWriter.write(responseBody);
             fileWriter.flush();
             fileWriter.close();
 
@@ -97,7 +78,7 @@ public class FileUtility {
 
             File file = new File(report_json_folder + fileName);
             FileWriter fileWriter = new FileWriter(file);
-            fileWriter.write(getFormattedJson(response));
+            fileWriter.write(responseBody);
             fileWriter.flush();
             fileWriter.close();
             return file;
@@ -105,5 +86,25 @@ public class FileUtility {
             e.printStackTrace();
         }
         return null;
+    }
+
+
+    public static void zip(String sourceDirPath, String zipFilePath) throws IOException {
+        Path p = Files.createFile(Paths.get(zipFilePath));
+        try (ZipOutputStream zs = new ZipOutputStream(Files.newOutputStream(p))) {
+            Path pp = Paths.get(sourceDirPath);
+            Files.walk(pp)
+                    .filter(path -> !Files.isDirectory(path))
+                    .forEach(path -> {
+                        ZipEntry zipEntry = new ZipEntry(pp.relativize(path).toString());
+                        try {
+                            zs.putNextEntry(zipEntry);
+                            Files.copy(path, zs);
+                            zs.closeEntry();
+                        } catch (IOException e) {
+                            System.err.println(e);
+                        }
+                    });
+        }
     }
 }

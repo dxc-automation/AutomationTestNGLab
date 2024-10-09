@@ -1,7 +1,10 @@
 package com.demo.config;
 
 import com.aventstack.extentreports.MediaEntityBuilder;
+import com.demo.properties.Constants;
 import com.demo.properties.FilePaths;
+import com.demo.properties.TestData;
+import com.demo.utilities.FileUtility;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.Level;
@@ -24,6 +27,7 @@ import org.openqa.selenium.safari.SafariOptions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.ITestResult;
 import org.testng.annotations.*;
+import org.testng.asserts.SoftAssert;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -31,12 +35,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import static com.demo.config.ConsoleRunner.xmlFile;
-import static com.demo.config.ReporterConfig.*;
-import static com.demo.utilities.FileUtility.*;
-
-import static org.apache.commons.io.FileUtils.cleanDirectory;
 
 
 /**
@@ -55,10 +53,10 @@ import static org.apache.commons.io.FileUtils.cleanDirectory;
 
 public class BasicTestConfig {
 
-    public static WebDriver     driver;
-    public static WebDriverWait wait;
-    public static File          screenshotFile;
-
+    public static SoftAssert check = new SoftAssert();
+    public static Constants constants = new Constants();
+    public static TestData testData   = new TestData();
+    public static WebDriver driver;
 
     static final Logger LOG = LogManager.getLogger(BasicTestConfig.class);
 
@@ -87,59 +85,42 @@ public class BasicTestConfig {
     }
 
 
-
-
-        /**
-        * Used for browser configuration
-        * @param browser
-        * @throws Exception
-        */
-
-        @Parameters("browser")
-        @BeforeSuite
-        public static void browserConfig(String browser) throws Exception {
-        DesiredCapabilities capability = new DesiredCapabilities();
-
-        if (browser.equalsIgnoreCase("chrome")) {
-            // Install Chrome
-            WebDriverManager.chromedriver().setup();
-
-            ChromeOptions options = new ChromeOptions();
-            options.addArguments("scripts-type");
-            options.addArguments("start-maximized");
-            options.addArguments("--disable-search-geolocation-disclosure");
-            options.addArguments("--disable-popup-blocking");
-            options.addArguments("--incognito");
-
-            driver = new ChromeDriver();
-            LOG.info("| Chrome browser launched successfully |");
-
-        } else if (browser.equalsIgnoreCase("firefox")) {
-            // Install Firefox
-            WebDriverManager.firefoxdriver().setup();
-
-            FirefoxProfile profile = new FirefoxProfile();
-            profile.setAcceptUntrustedCertificates(true);
-            profile.setAssumeUntrustedCertificateIssuer(true);
-
-            FirefoxOptions options = new FirefoxOptions();
-            options.setProfile(profile);
-            options.setLogLevel(FirefoxDriverLogLevel.TRACE);
-
-            driver = new FirefoxDriver(options);
-            LOG.info("| Firefox browser launched successfully |");
-        }
+    @BeforeSuite
+    public void getTestData() {
+        testData.getTestData();
     }
-    
+
+
+    @BeforeTest
+    @Parameters({"browser"})
+    public void initWebBrowser(String browser) throws Exception {
+        Drivers drivers = new Drivers();
+        driver = drivers.browserConfig(browser);
+    }
+
+
     /**
      * Delete all previous executed XML files
      */
-        @AfterSuite
-        public void clearXmlFiles() {
-            extent.flush();
+    @AfterSuite
+    public void clearXmlFiles() throws IOException {
+        ReporterConfig.extent.flush();
+
+        try {
             driver.close();
             driver.quit();
+        } catch (Exception e) {
+            System.out.println("Web browser was not closed");
         }
+
+        String folder = FilePaths.report_folder;
+        String file   = FilePaths.report_archive_folder + FileUtility.getDate() + ".zip";
+        FileUtility.zip(folder, file);
+        LOG.info("Report archive successfully created\nFile {}", file);
+
+        FileUtils.forceMkdir(new File(FilePaths.report_folder));
+        LOG.info("Old report folder successfully deleted");
+    }
 
 }
 

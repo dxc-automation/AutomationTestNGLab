@@ -16,7 +16,7 @@
         <parameter name="browser"     value="chrome"/>
         <parameter name="environment" value="production"/>
         <classes>
-            <class name="com.demo.tests.TestCase_02">
+            <class name="com.demo.test_cases.TestCase_02">
                 <methods>
                     <include name="loginUser"/>
                     <include name="checkUserInfo"/>

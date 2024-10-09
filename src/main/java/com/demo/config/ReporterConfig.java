@@ -3,11 +3,26 @@ package com.demo.config;
 import com.aventstack.extentreports.AnalysisStrategy;
 import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.ExtentTest;
+import com.aventstack.extentreports.MediaEntityBuilder;
 import com.aventstack.extentreports.reporter.ExtentHtmlReporter;
 import com.aventstack.extentreports.reporter.configuration.Theme;
+import com.demo.properties.Constants;
+import com.demo.properties.Endpoints;
+import com.demo.properties.FilePaths;
+import org.apache.commons.io.FileUtils;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
+import org.testng.ITestContext;
+import org.testng.ITestResult;
 
 import static com.demo.properties.FilePaths.*;
+import com.demo.config.BasicTestConfig.*;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -21,6 +36,8 @@ import java.net.UnknownHostException;
  */
 
 public class ReporterConfig {
+
+    static final Logger LOG = LogManager.getLogger(BasicTestConfig.class);
 
     public static ExtentTest    test;
     public static ExtentReports extent;

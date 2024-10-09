@@ -18,7 +18,7 @@
 
     <!-- browserConfig name - displayed at top-nav -->
 
-    <reportName> <![CDATA[ <img src='../src/main/resources/logo.png' />  ]]> </reportName>
+    <reportName>MS2 Automation Report</reportName>
 
     <!-- location of charts in the scripts view -->
     <!-- top, bottom -->

@@ -17,7 +17,7 @@ public class ElementScreenshot extends BasicTestConfig {
 
     private static String textFile;
 
-    public static void elementScreenshot(WebElement element, String image) throws Exception {
+    public void elementScreenshot(WebElement element, String image) throws Exception {
         textFile  = element.toString();
         File file = element.getScreenshotAs(OutputType.FILE);
         File dest = new File(FilePaths.screenshots_actual_folder + image + ".png");

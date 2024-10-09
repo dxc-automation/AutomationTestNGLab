@@ -1,6 +1,8 @@
 package com.demo.config;
 
 import com.aventstack.extentreports.MediaEntityBuilder;
+import com.demo.properties.Constants;
+import com.demo.properties.Endpoints;
 import com.demo.properties.FilePaths;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.Level;
@@ -11,20 +13,16 @@ import org.openqa.selenium.TakesScreenshot;
 import org.testng.ITestContext;
 import org.testng.ITestListener;
 import org.testng.ITestResult;
-
-import javax.imageio.IIOException;
+import org.testng.TestListenerAdapter;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
-import static com.demo.config.BasicTestConfig.driver;
-import static com.demo.properties.FilePaths.report_json_folder;
-import static com.demo.properties.FilePaths.screenshots_failed_folder;
+import static com.demo.config.ReporterConfig.*;
+import static com.demo.config.BasicTestConfig.*;
 
-public class TestNGListener extends ReporterConfig implements ITestListener {
 
+
+public class TestNGListener implements ITestListener {
 
     static final Logger LOG = LogManager.getLogger(BasicTestConfig.class);
 
@@ -32,7 +30,9 @@ public class TestNGListener extends ReporterConfig implements ITestListener {
     private String methodName;
 
     @Override
-    public void onStart(ITestContext arg0) { System.out.println("\nSUITE STARTED: [ " + arg0.getName().toUpperCase() + " ]"); }
+    public void onStart(ITestContext arg0) {
+        System.out.println("\nSUITE STARTED: [ " + arg0.getName().toUpperCase() + " ]");
+    }
 
 
     @Override
@@ -44,7 +44,7 @@ public class TestNGListener extends ReporterConfig implements ITestListener {
     @Override
     public void onTestSuccess(ITestResult result) {
         description = result.getMethod().getDescription();
-        methodName = String.format("%s", result.getMethod().getRealClass().getSimpleName());
+        methodName  = String.format("%s", result.getMethod().getRealClass().getSimpleName());
 
         LOG.log(Level.ALL, "| PASSED | " + description + "_" + methodName);
 
@@ -53,19 +53,29 @@ public class TestNGListener extends ReporterConfig implements ITestListener {
             //  Print into HTML generateReport file
             test.pass("<pre>"
                     + "<br/>"
+                    + "<center><b>* * * * * * * *    R E Q U E S T    * * * * * * * *</b></center>"
+                    + "<br/>"
+                    + "<br/>"
+                    + "URL              : " + constants.getUri().toString()
+                    + "<br/>"
+                    + "<br/>"
+                    + HttpHelper.getFormattedJson(constants.getRequestBody())
+                    + "<br/>"
+                    + "<br/>"
+                    + "<br/>"
                     + "<center><b>* * * * * * * *    R E S P O N S E    * * * * * * * *</b></center>"
                     + "<br/>"
                     + "<br/>"
-                    + "Response Code    : " + HttpHelper.getResponseCode()
+                    + "Response Code    : " + constants.getResponseCode()
                     + "<br/>"
-                    + "Response Message : " + HttpHelper.getResponseMsg()
-                    + "<br/>"
-                    + "<br/>"
-                    + HttpHelper.getResponseHeaders()
+                    + "Response Message : " + constants.getResponseMsg()
                     + "<br/>"
                     + "<br/>"
+                    + constants.getResponseHeaders()
                     + "<br/>"
-                    + HttpHelper.getResponseBody()
+                    + "<br/>"
+                    + "<br/>"
+                    + HttpHelper.getFormattedJson(constants.getResponseBody())
                     + "<br/>"
                     + "<br/>"
                     + "</pre>");
@@ -78,9 +88,10 @@ public class TestNGListener extends ReporterConfig implements ITestListener {
 
     @Override
     public void onTestFailure(ITestResult result) {
+        Throwable throwable = result.getThrowable();
+
         description = result.getMethod().getDescription();
         methodName = String.format("%s", result.getMethod().getRealClass().getSimpleName());
-        Throwable throwable = result.getThrowable();
 
         LOG.log(Level.ALL,"| FAILED | " + description + "_" + methodName);
 
@@ -91,15 +102,23 @@ public class TestNGListener extends ReporterConfig implements ITestListener {
                     + "<br/>"
                     + "<center><b>* * * * * * * *    R E Q U E S T    * * * * * * * *</b></center>"
                     + "<br/>"
+                    + "<br/>"
+                    + "URL              : " + constants.getUri().toString()
+                    + "<br/>"
+                    + "<br/>"
+                    + HttpHelper.getFormattedJson(constants.getRequestBody())
+                    + "<br/>"
+                    + "<br/>"
+                    + "<br/>"
                     + "<center><b>* * * * * * * *    R E S P O N S E    * * * * * * * *</b></center>"
                     + "<br />"
                     + "<br />"
-                    + "Response Code  : " + HttpHelper.getResponseCode()
+                    + "Response Code  : " + constants.getResponseCode()
                     + "<br />"
-                    + "Error Message  : " + HttpHelper.getResponseMsg()
+                    + "Error Message  : " + constants.getResponseMsg()
                     + "<br />"
                     + "<br />"
-                    + HttpHelper.getResponseHeaders()
+                    + constants.getResponseHeaders()
                     + "<br />"
                     + "<br />"
                     + "<br />"
@@ -108,13 +127,13 @@ public class TestNGListener extends ReporterConfig implements ITestListener {
                     + throwable
                     + "<br />"
                     + "<br />"
-                    + HttpHelper.getResponseBody()
+       //             + Constants.responseBody
                     + "<br />"
                     + "</pre>");
 
         } else if (description.equalsIgnoreCase("WEB")) {
             File fileFail;
-            fileFail = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+            fileFail = ((TakesScreenshot) BasicTestConfig.driver).getScreenshotAs(OutputType.FILE);
             try {
                 FileUtils.copyFile(fileFail, new File(FilePaths.screenshots_failed_folder + methodName + ".png"));
             } catch (IOException e) {
@@ -126,7 +145,7 @@ public class TestNGListener extends ReporterConfig implements ITestListener {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-            
+
             test.fail("<pre>" + throwable.toString() + "</pre>");
             System.out.println("\n" + throwable);
         }

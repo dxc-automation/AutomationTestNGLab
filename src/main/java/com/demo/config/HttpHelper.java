@@ -1,7 +1,14 @@
 package com.demo.config;
 
+import com.demo.properties.Constants;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.CookieStore;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.utils.URIBuilder;
@@ -10,113 +17,69 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.json.simple.JSONObject;
+import org.json.JSONObject;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 
-import static com.demo.utilities.FileUtility.getFormattedJson;
-import static org.apache.http.impl.client.HttpClientBuilder.*;
+import static com.demo.config.BasicTestConfig.constants;
 
 public class HttpHelper {
 
-    public static HttpEntity httpEntity;
     public static CloseableHttpClient client;
-    public static CloseableHttpResponse response;
-    public static JSONObject requestBody = new JSONObject();
     public static CookieStore cookieStore = new BasicCookieStore();
 
-    private static String url;
-    private static String responseBody;
-    private static int responseCode;
-    private static String responseHeaders;
-    private static String responseMsg;
-    private static String entity;
 
-
-
-    public static String getUrl() {
-        return url;
-    }
-
-    public static void setUrl(String host, String path) throws URISyntaxException {
-        URI uri = new URIBuilder()
+    public URI buildUri(String host, String path) throws URISyntaxException {
+        return new URIBuilder()
                 .setScheme("https")
                 .setHost(host)
                 .setPath(path)
                 .build();
-
-        url = uri.toString();
     }
-
-    public static String getResponseBody() {
-        return responseBody;
-    }
-
-    public static void setResponseBody(String newResponseBody) {
-        responseBody = newResponseBody;
-    }
-
-    public static int getResponseCode() {
-        return responseCode;
-    }
-
-    public static void setResponseCode(int newResponseCode) {
-        responseCode = newResponseCode;
-    }
-
-    public static String getResponseHeaders() {
-        return responseHeaders;
-    }
-
-    private static void setResponseHeaders(String newResponseHeaders) {
-        responseHeaders = newResponseHeaders;
-    }
-
-    public static String getResponseMsg() {
-        return responseMsg;
-    }
-
-    public static void setResponseMsg(String newResponseMsg) {
-        responseMsg = newResponseMsg;
-    }
-
-    public static String getEntity() {
-        return entity;
-    }
-
-    public static void setEntity(String newEntity) {
-        entity = newEntity;
-    }
-
 
 
     public static void getClosableHttpClientResponseDetails(CloseableHttpResponse response) throws Exception {
         try {
-            httpEntity = response.getEntity();
-            String responseStringEntity = EntityUtils.toString(httpEntity, "UTF-8");
-            setEntity(responseStringEntity);
+            int code = response.getStatusLine().getStatusCode();
+            constants.setResponseCode(code);
 
-            responseBody = getFormattedJson(responseStringEntity);
-            setResponseBody(responseBody);
+            HttpEntity httpEntity = response.getEntity();
+            constants.setHttpEntity(httpEntity);
 
-            responseCode = response.getStatusLine().getStatusCode();
-            setResponseCode(responseCode);
+            String responseBody = EntityUtils.toString(httpEntity, "UTF-8");
+            constants.setResponseBody(responseBody);
 
-            responseMsg  = response.getStatusLine().getReasonPhrase();
-            setResponseMsg(responseMsg);
+            String responseMsg = response.getStatusLine().getReasonPhrase();
+            constants.setResponseMsg(responseMsg);
 
-            responseHeaders = Arrays.asList(response.getAllHeaders())
+
+            String responseHeaders = Arrays.asList(response.getAllHeaders())
                     .toString()
                     .replace(", ", "\n")
                     .replace("[", "")
                     .replace("]", "");
-            setResponseHeaders(responseHeaders);
+            constants.setResponseHeaders(responseHeaders);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+
+    public static String getFormattedJson(String responseBody) {
+        try {
+            Gson gson = new GsonBuilder().setLenient().setPrettyPrinting().create();
+            JsonParser parser = new JsonParser();
+            JsonObject jsonObject    = parser.parse(responseBody).getAsJsonObject();
+            String formattedJson = gson.toJson(jsonObject);
+            return formattedJson;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 
@@ -128,7 +91,7 @@ public class HttpHelper {
                 .setRedirectsEnabled(true)
                 .build();
 
-        return  client = HttpClients.custom()
+        return  client = HttpClientBuilder.create()
                 .setDefaultCookieStore(cookieStore)
                 .setDefaultRequestConfig(config)
                 .build();

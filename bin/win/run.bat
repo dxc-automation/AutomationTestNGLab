@@ -1,4 +1,4 @@
-set ProjectPath=C:\Projects\PROJECTS\AutomationTestLab-master\target
+set ProjectPath=E:\Projects\AutomationTestNGLab\target
 cd %ProjectPath%
-java -cp tests.jar org.testng.TestNG C:\Projects\PROJECTS\AutomationTestLab-master\src\main\resources\xml_files\TestCase_01.xml
+java -cp tests.jar org.testng.TestNG E:\Projects\AutomationTestNGLab\src\main\resources\xml_files\TestCase_01.xml
 pause

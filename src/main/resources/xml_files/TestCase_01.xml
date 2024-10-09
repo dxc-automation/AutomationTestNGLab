@@ -12,12 +12,12 @@
         <listener class-name="com.demo.config.TestNGListener"/>
     </listeners>
 
-    <parameter name="browser" value="chrome"/>
-
     <test name="TC_01_Chrome">
+        <parameter name="browser" value="chrome"/>
         <classes>
-            <class name="com.demo.tests.TestCase_01">
+            <class name="com.demo.test_cases.TestCase_01">
                 <methods>
+                    <include name="web_login"/>
                     <include name="post_login"/>
                 </methods>
             </class>

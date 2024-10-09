@@ -8,7 +8,7 @@ public class FilePaths {
 
     //  Get project main dir
     public static Path getRootDir() {
-        Path root = Paths.get(new File(System.getProperty("user.dir")).getParent());
+        Path root = Paths.get(new File(System.getProperty("user.dir")).getPath());
         return root;
     }
 
@@ -18,11 +18,13 @@ public class FilePaths {
 
 
     //  * * * *    F I L E   P A T H S
-    public final static String report_json_folder          = getRootDir() + "/report/JSON/";
-    public final static String report_folder               = getRootDir() + "/report/";
-    public final static String report_html_file            = getRootDir() + "/report/TestReport.html";
-    public final static String report_config_xml_file      = getRootDir() + "/src/main/resources/extent-config.xml";
-    public final static String xml_files_folder            = getRootDir() + "/src/main/resources/xml_files/";
+    public final static String report_archive_folder       = getRootDir().getParent() + "/report_archive/";
+    public final static String report_json_folder          = getRootDir().getParent() + "/report/JSON/";
+    public final static String report_folder               = getRootDir().getParent() + "/report/";
+    public final static String report_html_file            = getRootDir().getParent() + "/report/TestReport.html";
+    public final static String report_config_xml_file      = getRootDir().getParent() + "/src/main/resources/extent-config.xml";
+    public final static String xml_files_folder            = getRootDir().getParent() + "/src/main/resources/xml_files/";
+    public final static String test_data_file              = getRootDir().getParent() + "/src/main/resources/test_data.json";
 
     public final static String screenshots_failed_folder   = getRootDir() + "/report/Screenshots/Failed/";
     public final static String screenshots_actual_folder   = getRootDir() + "/report/Screenshots/Actual/";
